@@ -1,7 +1,18 @@
-def main():
-    print("SpeakRay AI backend is starting...")
-    print("Welcome to SpeakRay AI!")
+from fastapi import FastAPI
+
+app = FastAPI(title="SpeakRay AI")
 
 
-if __name__ == "__main__":
-    main()
+@app.get("/")
+def home():
+    return {
+        "message": "Welcome to SpeakRay AI!",
+        "status": "Backend is running"
+    }
+
+@app.get("/health")
+def health_check():
+    return {
+        "status": "healthy",
+        "service": "SpeakRay AI"
+    }
