@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
+from app.backend.conversation import add_message, get_conversation
 
 app = FastAPI(title="SpeakRay AI")
 
@@ -27,8 +28,23 @@ def health_check():
 
 @app.post("/conversation")
 def conversation(request: ConversationRequest):
+    reply = "I received your message. SpeakRay AI is listening!"
+
+    add_message(
+        request.session_id,
+        request.message,
+        reply
+    )
+
     return {
         "session_id": request.session_id,
         "user_message": request.message,
-        "reply": "I received your message. SpeakRay AI is listening!"
+        "reply": reply
+    }
+
+@app.get("/conversation/{session_id}")
+def get_conversation_history(session_id: str):
+    return {
+        "session_id": session_id,
+        "messages": get_conversation(session_id)
     }
