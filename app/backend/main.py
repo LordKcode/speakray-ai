@@ -6,6 +6,7 @@ app = FastAPI(title="SpeakRay AI")
 
 class ConversationRequest(BaseModel):
     message: str
+    session_id: str
 
 
 @app.get("/")
@@ -27,6 +28,7 @@ def health_check():
 @app.post("/conversation")
 def conversation(request: ConversationRequest):
     return {
+        "session_id": request.session_id,
         "user_message": request.message,
         "reply": "I received your message. SpeakRay AI is listening!"
     }
