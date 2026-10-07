@@ -1,15 +1,34 @@
-conversations = {}
+from database.db import get_connection
 
 
 def add_message(session_id: str, user_message: str, reply: str):
-    if session_id not in conversations:
-        conversations[session_id] = []
+    connection = get_connection()
 
-    conversations[session_id].append({
-        "user_message": user_message,
-        "reply": reply
-    })
+    connection.execute(
+        """
+        INSERT INTO messages (session_id, user_message, reply)
+        VALUES (?, ?, ?)
+        """,
+        (session_id, user_message, reply)
+    )
+
+    connection.commit()
+    connection.close()
 
 
 def get_conversation(session_id: str):
-    return conversations.get(session_id, [])
+    connection = get_connection()
+
+    rows = connection.execute(
+        """
+        SELECT user_message, reply
+        FROM messages
+        WHERE session_id = ?
+        ORDER BY id
+        """,
+        (session_id,)
+    ).fetchall()
+
+    connection.close()
+
+    return [dict(row) for row in rows]

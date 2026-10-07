@@ -1,8 +1,10 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from app.backend.conversation import add_message, get_conversation
+from database.db import initialize_database
 
 app = FastAPI(title="SpeakRay AI")
+initialize_database()
 
 
 class ConversationRequest(BaseModel):
