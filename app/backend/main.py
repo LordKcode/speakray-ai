@@ -1,7 +1,11 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from app.backend.conversation import add_message, get_conversation
-from database.db import initialize_database, get_all_sessions
+from database.db import (
+    initialize_database,
+    get_all_sessions,
+    delete_conversation
+)
 
 app = FastAPI(title="SpeakRay AI")
 initialize_database()
@@ -55,4 +59,16 @@ def get_conversation_history(session_id: str):
 def list_conversations():
     return {
         "conversations": get_all_sessions()
+    }
+
+@app.delete("/conversation/{session_id}")
+def delete_conversation_history(session_id: str):
+    deleted_count = delete_conversation(session_id)
+
+    return {
+        "session_id": session_id,
+        "deleted_messages": deleted_count,
+        "message": "Conversation deleted successfully"
+        if deleted_count > 0
+        else "No conversation found for this session"
     }

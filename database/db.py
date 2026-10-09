@@ -59,6 +59,20 @@ def get_all_sessions():
     connection.close()
 
     return [dict(row) for row in rows]
+def delete_conversation(session_id: str):
+    connection = get_connection()
+
+    cursor = connection.execute(
+        "DELETE FROM messages WHERE session_id = ?",
+        (session_id,)
+    )
+
+    deleted_count = cursor.rowcount
+
+    connection.commit()
+    connection.close()
+
+    return deleted_count
 
 if __name__ == "__main__":
     initialize_database()
