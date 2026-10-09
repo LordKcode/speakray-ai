@@ -43,7 +43,22 @@ def initialize_database():
     connection.commit()
     connection.close()
 
+def get_all_sessions():
+    connection = get_connection()
 
+    rows = connection.execute("""
+        SELECT
+            session_id,
+            COUNT(*) AS message_count,
+            MAX(created_at) AS last_message_at
+        FROM messages
+        GROUP BY session_id
+        ORDER BY last_message_at DESC
+    """).fetchall()
+
+    connection.close()
+
+    return [dict(row) for row in rows]
 
 if __name__ == "__main__":
     initialize_database()

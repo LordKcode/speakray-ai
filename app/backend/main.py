@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from app.backend.conversation import add_message, get_conversation
-from database.db import initialize_database
+from database.db import initialize_database, get_all_sessions
 
 app = FastAPI(title="SpeakRay AI")
 initialize_database()
@@ -49,4 +49,10 @@ def get_conversation_history(session_id: str):
     return {
         "session_id": session_id,
         "messages": get_conversation(session_id)
+    }
+
+@app.get("/conversations")
+def list_conversations():
+    return {
+        "conversations": get_all_sessions()
     }
