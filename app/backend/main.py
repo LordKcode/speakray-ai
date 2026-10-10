@@ -1,5 +1,18 @@
-from fastapi import FastAPI
+import os
+
+from dotenv import load_dotenv
+from google import genai
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+
+load_dotenv()
+
+api_key = os.getenv("GEMINI_API_KEY")
+
+if not api_key:
+    raise RuntimeError("GEMINI_API_KEY is missing from the environment.")
+
+client = genai.Client(api_key=api_key)
 from app.backend.conversation import add_message, get_conversation
 from database.db import (
     initialize_database,
@@ -32,9 +45,31 @@ def health_check():
     }
 
 
+
 @app.post("/conversation")
 def conversation(request: ConversationRequest):
-    reply = "I received your message. SpeakRay AI is listening!"
+    try:
+        response = client.models.generate_content(
+            model="gemini-3.8-flash",
+            contents=request.message
+        )
+
+        reply = response.text
+
+        if not reply:
+            raise HTTPException(
+                status_code=502,
+                detail="Gemini returned an empty response."
+            )
+
+    except HTTPException:
+        raise
+
+    except Exception:
+        raise HTTPException(
+            status_code=502,
+            detail="SpeakRay could not get an AI response. Please try again."
+        )
 
     add_message(
         request.session_id,
